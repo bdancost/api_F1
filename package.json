@@ -1,0 +1,16 @@
+{
+  "name": "api-formula-2023",
+  "version": "1.0.0",
+  "description": "Projeto de uma API que entrega os dados da competiçao de F1 do ano de 2023",
+  "main": "app.js",
+  "scripts": {
+    "dev": "node --watch .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daniel Fernandes",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
