@@ -1,4 +1,4 @@
-export const drivers = [
+const driversInRandomOrder = [
   {
     name: "Max Verstappen",
     team: "Red Bull Racing",
@@ -126,3 +126,13 @@ export const drivers = [
     id: "d15a9c50-5943-4be6-872f-b850914c9a80",
   },
 ];
+
+export const drivers = driversInRandomOrder.sort((b, a) => {
+  if (a.points > b.points) {
+    return 1;
+  }
+  if (b.points > a.points) {
+    return -1;
+  }
+  return 0;
+});
