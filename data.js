@@ -120,7 +120,7 @@ const driversInRandomOrder = [
     id: "54e3d25b-e421-4d29-a96d-22effbed9f8e",
   },
   {
-    name: "Nick de Vries",
+    name: "Nyck de Vries",
     team: "AlphaTauri",
     points: 0,
     id: "d15a9c50-5943-4be6-872f-b850914c9a80",
