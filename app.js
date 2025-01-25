@@ -22,6 +22,12 @@ app.get(baseAPIRoute + "drivers/standings/:position", (req, res) => {
 app.get(baseAPIRoute + "/driver/:id", (req, res) => {
   const { id } = req.params;
   const selectedDriver = drivers.find((driver) => driver.id === id);
+
+  if (!selectedDriver) {
+    res.status(404).send("Driver not found");
+    return;
+  }
+
   res.status(200).send(selectedDriver);
 });
 
@@ -38,6 +44,39 @@ app.post(baseAPIRoute + "/drivers", (req, res) => {
     return 0;
   });
   res.status(200).send(newDriver);
+});
+
+app.put(baseAPIRoute + "/drivers/:id", (req, res) => {
+  const { id } = req.params;
+  const selectedDriver = drivers.find((d) => d.id === id);
+
+  if (!selectedDriver) {
+    res.status(404).send("Driver not found");
+    return;
+  }
+
+  for (const key in selectedDriver) {
+    if (req.body[key]) {
+      selectedDriver[key] = req.body[key];
+    }
+  }
+
+  res.status(200).send(selectedDriver);
+});
+
+app.delete(baseAPIRoute + "/drivers/:id", (req, res) => {
+  const { id } = req.params;
+  const selectedDriver = drivers.find((d) => d.id === id);
+
+  if (!selectedDriver) {
+    res.status(404).send("Driver not found");
+    return;
+  }
+
+  const index = drivers.indexOf(selectedDriver);
+  drivers.splice(index, 1);
+
+  res.status(200).send(selectedDriver);
 });
 
 const port = 3000;
