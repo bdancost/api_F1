@@ -1,4 +1,5 @@
 import express from "express";
+import Joi from "joi";
 import { drivers } from "./data.js";
 import { randomUUID } from "node:crypto";
 
@@ -14,7 +15,15 @@ app.get(baseAPIRoute + "/drivers", (req, res) => {
 });
 
 app.get(baseAPIRoute + "drivers/standings/:position", (req, res) => {
+  const positionSchema = Joi.number(1).max(drivers.length);
   const { position } = req.params;
+  const { error } = positionSchema.validate(position);
+
+  if (error) {
+    res.status(400).send(error);
+    return;
+  }
+
   const selectedDriver = drivers[position - 1];
   res.status(200).send(selectedDriver);
 });
@@ -32,6 +41,16 @@ app.get(baseAPIRoute + "/driver/:id", (req, res) => {
 });
 
 app.post(baseAPIRoute + "/drivers", (req, res) => {
+  const driverSchema = Joi.object({
+    name: Joi.string().min(3).max(50).required(),
+    team: Joi.string().min(3).max(50).required(),
+    points: Joi.number().min(0).max(1000).default(0),
+  });
+  const { error } = driverSchema.validate(req.body, { abortEarly: false });
+  if (error) {
+    res.status(400).send(error);
+    return;
+  }
   const newDriver = { ...req.body, id: randomUUID() };
   drivers.push(newDriver);
   drivers.sort((b, a) => {
@@ -47,9 +66,21 @@ app.post(baseAPIRoute + "/drivers", (req, res) => {
 });
 
 app.put(baseAPIRoute + "/drivers/:id", (req, res) => {
+  const updateDriverSchema = Joi.object({
+    name: Joi.string().min(3).max(50),
+    team: Joi.string().min(3).max(50),
+    points: Joi.number().min(0).max(1000),
+  }).min(1);
+  const { error } = updateDriverSchema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (error) {
+    res.status(400).send(error);
+    return;
+  }
+
   const { id } = req.params;
   const selectedDriver = drivers.find((d) => d.id === id);
-
   if (!selectedDriver) {
     res.status(404).send("Driver not found");
     return;
