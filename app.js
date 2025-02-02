@@ -1,6 +1,6 @@
 import express from "express";
 import Joi from "joi";
-import { drivers } from "./data.js";
+import { drivers, generateTeamsArray } from "./data.js";
 import { randomUUID } from "node:crypto";
 
 const baseAPIRoute = "/api/v1";
@@ -10,12 +10,30 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+app.get(baseAPIRoute + "/teams", (req, res) => {
+  res.status(200).send(generateTeamsArray());
+});
+
+app.get(baseAPIRoute + "/teams/standings/:position", (req, res) => {
+  const teams = generateTeamsArray();
+  const positionSchema = Joi.number().min(1).max(teams.length);
+  const { position } = req.params;
+  const { error } = positionSchema.validate(position);
+
+  if (error) {
+    res.status(400).send(error);
+    return;
+  }
+  const selectedTeam = teams[position - 1];
+  res.status(200).send(selectedTeam);
+});
+
 app.get(baseAPIRoute + "/drivers", (req, res) => {
   res.status(200).send(drivers);
 });
 
 app.get(baseAPIRoute + "drivers/standings/:position", (req, res) => {
-  const positionSchema = Joi.number(1).max(drivers.length);
+  const positionSchema = Joi.number().min(1).max(drivers.length);
   const { position } = req.params;
   const { error } = positionSchema.validate(position);
 
