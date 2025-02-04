@@ -2,6 +2,11 @@ import express from "express";
 import Joi from "joi";
 import { drivers, generateTeamsArray } from "./data.js";
 import { randomUUID } from "node:crypto";
+import {
+  validateDriverInfo,
+  validateUpdateDriverInfo,
+  validatePosition,
+} from "./inputValidation.js";
 
 const baseAPIRoute = "/api/v1";
 
@@ -16,9 +21,8 @@ app.get(baseAPIRoute + "/teams", (req, res) => {
 
 app.get(baseAPIRoute + "/teams/standings/:position", (req, res) => {
   const teams = generateTeamsArray();
-  const positionSchema = Joi.number().min(1).max(teams.length);
   const { position } = req.params;
-  const { error } = positionSchema.validate(position);
+  const { error } = validatePosition(position, teams.length);
 
   if (error) {
     res.status(400).send(error);
@@ -33,9 +37,8 @@ app.get(baseAPIRoute + "/drivers", (req, res) => {
 });
 
 app.get(baseAPIRoute + "drivers/standings/:position", (req, res) => {
-  const positionSchema = Joi.number().min(1).max(drivers.length);
   const { position } = req.params;
-  const { error } = positionSchema.validate(position);
+  const { error } = validatePosition(position, drivers.length);
 
   if (error) {
     res.status(400).send(error);
@@ -59,12 +62,7 @@ app.get(baseAPIRoute + "/driver/:id", (req, res) => {
 });
 
 app.post(baseAPIRoute + "/drivers", (req, res) => {
-  const driverSchema = Joi.object({
-    name: Joi.string().min(3).max(50).required(),
-    team: Joi.string().min(3).max(50).required(),
-    points: Joi.number().min(0).max(1000).default(0),
-  });
-  const { error } = driverSchema.validate(req.body, { abortEarly: false });
+  const { error } = validateDriverInfo(req.body);
   if (error) {
     res.status(400).send(error);
     return;
@@ -84,14 +82,7 @@ app.post(baseAPIRoute + "/drivers", (req, res) => {
 });
 
 app.put(baseAPIRoute + "/drivers/:id", (req, res) => {
-  const updateDriverSchema = Joi.object({
-    name: Joi.string().min(3).max(50),
-    team: Joi.string().min(3).max(50),
-    points: Joi.number().min(0).max(1000),
-  }).min(1);
-  const { error } = updateDriverSchema.validate(req.body, {
-    abortEarly: false,
-  });
+  const { error } = validateUpdateDriverInfo(req.body);
   if (error) {
     res.status(400).send(error);
     return;
