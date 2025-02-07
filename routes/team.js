@@ -8,14 +8,16 @@ router.get("/", (req, res) => {
   res.status(200).send(generateTeamsArray());
 });
 
-router.get("/standings/:position", (req, res) => {
+router.get("/standings/:position", (req, res, next) => {
   const teams = generateTeamsArray();
   const { position } = req.params;
   const { error } = validatePosition(position, teams.length);
 
   if (error) {
-    res.status(400).send(error);
-    return;
+    const err = new Error();
+    err.statusCode = 400;
+    err.description = error.details;
+    return next(err);
   }
   const selectedTeam = teams[position - 1];
   res.status(200).send(selectedTeam);

@@ -18,31 +18,37 @@ router.get("/standings/:position", (req, res) => {
   const { error } = validatePosition(position, drivers.length);
 
   if (error) {
-    res.status(400).send(error);
-    return;
+    const err = new Error();
+    err.statusCode = 400;
+    err.description = error.details;
+    return next(err);
   }
 
   const selectedDriver = drivers[position - 1];
   res.status(200).send(selectedDriver);
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", (req, res, next) => {
   const { id } = req.params;
   const selectedDriver = drivers.find((driver) => driver.id === id);
 
   if (!selectedDriver) {
-    res.status(404).send("Driver not found");
-    return;
+    const err = new Error();
+    err.statusCode = 404;
+    err.description = "Driver not found";
+    return next(err);
   }
 
   res.status(200).send(selectedDriver);
 });
 
-router.post("/", (req, res) => {
+router.post("/", (req, res, next) => {
   const { error } = validateDriverInfo(req.body);
   if (error) {
-    res.status(400).send(error);
-    return;
+    const err = new Error();
+    err.statusCode = 400;
+    err.description = error.details;
+    return next(err);
   }
   const newDriver = { ...req.body, id: randomUUID() };
   drivers.push(newDriver);
@@ -58,18 +64,22 @@ router.post("/", (req, res) => {
   res.status(200).send(newDriver);
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", (req, res, next) => {
   const { error } = validateUpdateDriverInfo(req.body);
   if (error) {
-    res.status(400).send(error);
-    return;
+    const err = new Error();
+    err.statusCode = 400;
+    err.description = error.details;
+    return next(err);
   }
 
   const { id } = req.params;
   const selectedDriver = drivers.find((d) => d.id === id);
   if (!selectedDriver) {
-    res.status(404).send("Driver not found");
-    return;
+    const err = new Error();
+    err.statusCode = 404;
+    err.description = "Driver not found";
+    return next(err);
   }
 
   for (const key in selectedDriver) {
@@ -81,13 +91,15 @@ router.put("/:id", (req, res) => {
   res.status(200).send(selectedDriver);
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", (req, res, next) => {
   const { id } = req.params;
   const selectedDriver = drivers.find((d) => d.id === id);
 
   if (!selectedDriver) {
-    res.status(404).send("Driver not found");
-    return;
+    const err = new Error();
+    err.statusCode = 404;
+    err.description = "Driver not found";
+    return next(err);
   }
 
   const index = drivers.indexOf(selectedDriver);
